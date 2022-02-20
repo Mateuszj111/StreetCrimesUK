@@ -1,0 +1,28 @@
+version: '3.8'
+
+services:
+
+  mongo:
+    build: ./mongodb
+    restart: always
+    container_name: mongodb
+    ports:
+    - 27017:27017
+
+  analytics:
+    build: ./analytics
+    depends_on:
+      - mongo
+
+
+  web:
+    build: ./api
+    command: uvicorn main:app --reload --workers 1 --host 0.0.0.0 --port 8000
+    volumes:
+      - ./api:/usr/src/app
+    ports:
+      - 8000:8000
+    depends_on:
+      - mongo
+      - analytics
+    
