@@ -11,18 +11,18 @@ services:
 
   analytics:
     build: ./analytics
+    ports:
+      - 4040:4040
     depends_on:
       - mongo
 
-
   web:
     build: ./api
-    command: uvicorn main:app --reload --workers 1 --host 0.0.0.0 --port 8000
+    command: uvicorn main:app --workers 1 --host 0.0.0.0 --port 8000
     volumes:
       - ./api:/usr/src/app
     ports:
       - 8000:8000
     depends_on:
-      - mongo
       - analytics
     

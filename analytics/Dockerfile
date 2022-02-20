@@ -34,6 +34,8 @@ ARG WDIR=/opt/application
 COPY project $WDIR/project
 COPY src $WDIR/src
 COPY build.sbt $WDIR/.
+COPY download_jars.sh $WDIR/.
+COPY entrypoint.sh $WDIR/.
 
 #RUN wget https://policeuk-data.s3.amazonaws.com/download/465b4b07ef43a38796817fd22939ef32b23c216f.zip
 #RUN unzip 465b4b07ef43a38796817fd22939ef32b23c216f.zip -d $WDIR/src/main/resources/
@@ -43,8 +45,9 @@ RUN unzip $WDIR/src/main/resources/dataset.zip -d $WDIR/src/main/resources/
 RUN rm $WDIR/src/main/resources/dataset.zip
 
 RUN sh $WDIR/src/main/resources/rearrange.sh
+RUN sh $WDIR/download_jars.sh
 
 RUN sbt compile
 RUN sbt package
 
-RUN spark-submit --class analytics.Main target/scala-2.12/analytics_2.12-0.1.jar
+ENTRYPOINT ["/opt/application/entrypoint.sh"]

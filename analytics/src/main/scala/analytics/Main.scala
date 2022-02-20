@@ -1,20 +1,21 @@
 package analytics
 
+import org.mongodb.scala.model.Indexes
+import org.mongodb.scala.{Document, MongoClient, MongoCollection, SingleObservable}
 import org.apache.spark.sql.expressions.{Window, WindowSpec}
 import org.apache.spark.sql.functions._
 import org.apache.spark.sql.types.DoubleType
 import org.apache.spark.sql.{Column, DataFrame, SparkSession}
 import com.mongodb.spark._
 import com.mongodb.spark.config._
-import org.mongodb.scala.model.Indexes
-import org.mongodb.scala.{Document, MongoClient, MongoCollection, SingleObservable}
+
 
 object Main extends App{
   val spark: SparkSession = SparkSession
     .builder()
     .appName("AnalyticsEngine")
     .master("local[*]")
-    .config("spark.sql.shuffle.partitions", 30)
+    .config("spark.sql.shuffle.partitions", 100)
     .config("spark.driver.memory", "10g")
     .config("spark.mongodb.output.uri", "mongodb://spark:spark@mongo/admin.final")
     .getOrCreate()
@@ -71,8 +72,8 @@ object Main extends App{
     .drop("outcomeTypeStreet")
     .filter($"crimeID".isNotNull)
 
-    outputAggregate.persist()
-    outputAggregate.count()
+  outputAggregate.persist()
+  outputAggregate.count()
 
     outputAggregate
     .write
@@ -115,12 +116,10 @@ object Main extends App{
     .format("mongo")
     .save()
 
-
-
   outputAggregate.unpersist()
 
+
   val mongoClient = MongoClient("mongodb://spark:spark@mongo")
-  mongoClient.listDatabaseNames()
   val collection: MongoCollection[Document] = mongoClient.getDatabase("admin").getCollection("final")
 
   val observable: SingleObservable[String] =  collection.createIndex(Indexes.ascending("crimeID"))
@@ -129,7 +128,6 @@ object Main extends App{
     (e: Throwable) => println(s"There was an error: $e"),
     () => println("Completed!")
   )
-
 
 
 }

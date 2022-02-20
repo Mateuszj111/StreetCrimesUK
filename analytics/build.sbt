@@ -1,6 +1,5 @@
 ThisBuild / scalaVersion := "2.12.15"
 
-
 lazy val root = (project in file("."))
   .settings(
     name := "analytics",
@@ -8,7 +7,6 @@ lazy val root = (project in file("."))
     libraryDependencies ++= Seq(
       Dependencies.sparkCore,
       Dependencies.sparkSql,
-      Dependencies.mongo,
-      Dependencies.mongoScala
+      Dependencies.mongo
     )
   )
